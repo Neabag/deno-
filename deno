@@ -1,0 +1,257 @@
+*** DON'T CUT FROM HERE, BUT FEEL FREE TO COPY ***
+
+Seminar on Deno
+
+Seminar notes on 7-Aug-2020
+===================
+
+
+How to install deno?
+
+Open powershell
+
+iwr https://deno.land/x/install/install.ps1 -useb | iex
+
+
+PS C:\Users\admin> deno --version
+deno 1.2.2
+v8 8.5.216
+typescript 3.9.2
+PS C:\Users\admin>
+
+
+Hello.ts
+
+console.log("Welcome to Deno")
+
+deno run --quiet Hello.ts
+
+
+deno run https://deno.land/std@0.63.0/examples/welcome.ts
+
+Remote code is fetched and cached on first execution, and never updated until the code is run with the --reload flag.
+
+Deno code is cached in %LOCALAPPDATA%
+
+
+
+deno run --allow-read two.ts sample.txt
+
+Q:
+
+We don’t have any such permission issues in Java as well. Isn’t It ?
+
+
+A:
+
+We do have
+We have SecurityManager class in java.util.security package
+
+We can call SM class into our program
+
+Java Applet - a small .class that is embedded into HTML page (client side code)
+Java Applets by default can't access the local file system, can't connect to any network except frm the server it originated from
+
+Two.ts
+
+// deno-fmt-ignore
+const filenames = Deno.args;
+for (const filename of filenames) 
+{
+  const file = await Deno.open(filename);
+    await Deno.copy(file, Deno.stdout);
+  file.close();
+  }
+
+deno run --access-read Two.ts sample.txt
+
+--
+
+https://deno.land/std@0.63.0/examples/welcome.ts
+
+
+Three.ts
+
+// Fetching contents from url
+const url = Deno.args[0];
+const res = await fetch(url);
+
+const body = new Uint8Array(await res.arrayBuffer());
+await Deno.stdout.write(body);
+
+
+Run:
+
+deno run Three.ts https://www.google.com (it won't work)
+
+deno run --allow-net Three.ts https://www.google.com (it will work)
+
+
+Uint8Array is used to unmarshall / decode / convert some special characters found in the website
+
+
+*** If you want to install tsc ****
+
+npm install --g tsc
+
+tsc <<my-typescript-program.tsc>> --> will generate my-tpescript-program.js
+
+transpilation - conversion from one language to another language
+
+Here, we convert from .ts (typescript) to .js (javascript)
+
+3.45
+
+Take a break about 15 mins
+
+4.00 pm
+
+
+Q:
+Can we run js file directly using deno, if I’m using bebel to transpire es6 to es5?
+
+
+A:
+
+Yes
+
+
+MyModule.js
+
+export function sum(x, y) {
+  console.log((x + y).toString());
+}
+
+
+TestJS.ts:
+
+// Deno code is going to use MyModule.js 
+import * as mymod from "./MyModule.js"
+
+mymod.sum(75,24);
+
+How to get help?
+
+deno -h
+deno --help
+
+If you want help on "run" subcommand
+
+deno help run
+
+https://www.typescriptlang.org/play
+
+This is a good website for converting typescript contents into javascript contents
+
+
+Five.ts
+
+// Reading the arguments
+console.log('length of the argument is ', Deno.args.length.toString());
+for (const x of Deno.args) {
+  console.log(x);
+}
+
+
+Currently, as on today, there is very minimal support from IDEs.
+VScode provides a extension mechanism for deno
+
+As an extension mechanism, in VSCode, you can search for deno extension
+
+--
+
+Let's say your module depends on remote module "a.ts"
+When you compile yor module for the first time a.ts, is retreived from the remote location, compiled and cached
+
+But, what happens if the cotent in the remote url is changed?
+
+Deno suggests that you use integrity checking and lock files.
+
+caching and lock files
+
+Deno can store and check subresource integrity for modules using a small JSON file
+Use the --lock=lock.json to enable and specify lock file checking
+
+lock.json might look like this:
+
+{
+"url1/a.ts": "312",
+"url2/b.ts": "400"
+
+}
+
+If you have modified in the url1, for the file a.ts, you should generate a different code:
+
+{
+"url1/a.ts": "313",
+"url2/b.ts": "400"
+
+}
+
+
+Machine 1:
+
+It will refetch the code if the number is different
+Machine 2:
+
+It is something similar to SERIALVERSIONUID in Java
+
+Machine 2:
+
+deno cache --reload --lock=lock.json url1/a.ts
+
+Generate documents:
+
+Calculator.ts
+
+/**
+ * Adds no1 and no2.
+ * @param {number} no1
+ * @param {number} no2
+ * @returns {number} Sum of no1 and no2
+ */
+export function add(no1: number, no2: number): number {
+  return no1 + no2;
+}
+
+
+generate document using:
+
+deno doc --json Calculator.ts
+
+Anything related to JavaScript, use VSCode
+
+Other editors: there is atom,webstorm, sublime text editor, notepad++
+Intellij
+Eclipse with JS plugin
+
+
+$ locale
+SET LANG="en_US.utf-8"
+SET LC_COLLATE="en_US.utf-8"
+SET LC_CTYPE="en_US.utf-8"
+SET LC_MESSAGES="en_US.utf-8"
+SET LC_MONETARY="en_US.utf-8"
+SET LC_NUMERIC="en_US.utf-8"
+SET LC_TIME="en_US.utf-8"
+SET LC_ALL="en_US.utf-8"
+
+what is linter?
+
+This is for static code analysis
+
+You have declared "x" variables, not used them
+There would be some "dead point" in your code
+If you haven't followed the coding standards..
+
+
+The official website:
+
+https://deno.land/
+
+
+
+
+
+
+
